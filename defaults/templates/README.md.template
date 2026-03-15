@@ -1,0 +1,18 @@
+# {repo_name}
+
+TODO: Add project description
+
+## Getting Started
+
+```bash
+# Enter development environment (if shell.nix exists)
+nix-shell
+```
+
+## Development
+
+TODO: Add development instructions
+
+---
+
+Created by muxxer

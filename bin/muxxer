@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LIB_DIR="$SCRIPT_DIR/lib"
+
+source "$LIB_DIR/core.sh"
+source "$LIB_DIR/utils/logging.sh"
+source "$LIB_DIR/utils/error-handling.sh"
+source "$LIB_DIR/utils/validation.sh"
+source "$LIB_DIR/utils/project-detection.sh"
+source "$LIB_DIR/config.sh"
+source "$LIB_DIR/tmux.sh"
+source "$LIB_DIR/fzf.sh"
+source "$LIB_DIR/templates.sh"
+source "$LIB_DIR/workflows/local.sh"
+source "$LIB_DIR/workflows/newrepo.sh"
+
+handle_session_list_mode() {
+	local selected_session=""
+
+	selected_session="$(fzf::select_session)"
+	if [[ -z "$selected_session" ]]; then
+		log::info "No session selected"
+		exit 0
+	fi
+
+	log::info "Attaching to session '$selected_session'"
+	tmux::attach "$selected_session"
+}
+
+handle_new_session_flow() {
+	local session_name="${1:-}"
+	local selected_directory=""
+
+	selected_directory="$(fzf::select_directory "$session_name")"
+
+	if [[ -z "$selected_directory" ]]; then
+		log::info "Selection cancelled"
+		exit 0
+	fi
+
+	if [[ "$selected_directory" == "NEW REPO" ]]; then
+		log::info "Starting new repo workflow"
+		workflow::newrepo::run "$session_name"
+		return $?
+	fi
+
+	workflow::local::run "$session_name" "$selected_directory"
+}
+
+show_help() {
+	printf '%s\n' \
+		"Usage: muxxer [SESSION_NAME]" \
+		"" \
+		"Simple (opinionated) tmux session manager." \
+		"" \
+		"Flags:" \
+		"  -h, --help      Show this help message" \
+		"  -v, --version   Show muxxer version" \
+		"" \
+		"Examples:" \
+		"  muxxer            List and attach to existing sessions" \
+		"  muxxer myproject  Attach to or create session" \
+		"  muxxer --help     Show help" \
+		"  muxxer --version  Show version"
+}
+
+show_version() {
+	printf 'muxxer %s\n' "$MUXXER_VERSION"
+}
+
+main() {
+	local session_name=""
+	local first_arg="${1:-}"
+
+	case "$first_arg" in
+	-h|--help)
+		show_help
+		return 0
+		;;
+	-v|--version)
+		show_version
+		return 0
+		;;
+	esac
+
+	# Setup signal handlers
+	error::setup_trap
+
+	# Initialize config (copies defaults on first run)
+	config::init
+
+	if [[ $# -eq 0 ]]; then
+		handle_session_list_mode
+		return 0
+	fi
+
+	session_name="$1"
+
+	# Validate session name
+	if ! validation::session_name_valid "$session_name"; then
+		error::handle "Invalid session name '$session_name' (allowed: letters, numbers, underscore, dash)"
+	fi
+
+	# Check if session already exists
+	if tmux::session_exists "$session_name"; then
+		log::info "Session '$session_name' found, attaching..."
+		tmux::attach "$session_name"
+		return 0
+	fi
+
+	# Session doesn't exist - start new session flow
+	log::info "Session '$session_name' not found, creating new..."
+	handle_new_session_flow "$session_name"
+}
+
+main "$@"

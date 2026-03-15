@@ -1,0 +1,14 @@
+# Default muxxer configuration
+# This file is copied to ~/.config/muxxer/config on first run.
+
+# Git settings
+MUXXER_GIT_DIR="$HOME/git"
+
+# Auto-creation flags
+MUXXER_CREATE_SHELL_NIX="true"
+MUXXER_CREATE_README="true"
+MUXXER_INIT_GIT="true"
+
+# GitHub repository creation (uses gh CLI, requires: gh auth login beforehand)
+MUXXER_CREATE_GITHUB_REPO="true"
+MUXXER_GITHUB_DEFAULT_VISIBILITY="private"  # "public" or "private"
