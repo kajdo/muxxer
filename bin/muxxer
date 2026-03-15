@@ -31,6 +31,32 @@ handle_session_list_mode() {
 	tmux::attach "$selected_session"
 }
 
+handle_all_projects_flow() {
+	local selected_directory=""
+	local session_name=""
+
+	selected_directory="$(fzf::select_all_directories)"
+
+	if [[ -z "$selected_directory" ]]; then
+		log::info "No project selected"
+		exit 0
+	fi
+
+	# Use directory basename as session name
+	session_name="$(basename "$selected_directory")"
+
+	# Check if session already exists
+	if tmux::session_exists "$session_name"; then
+		log::info "Attaching to existing session '$session_name'"
+		tmux::attach "$session_name"
+		return $?
+	fi
+
+	# Create new session for existing project
+	log::info "Creating session '$session_name' for existing project"
+	workflow::local::run "$session_name" "$selected_directory"
+}
+
 handle_new_session_flow() {
 	local session_name="${1:-}"
 	local selected_directory=""
@@ -62,10 +88,12 @@ show_help() {
 		"  -v, --version    Show muxxer version" \
 		"  --init           Initialize configuration (only if not exists)" \
 		"  --force-init     Force overwrite configuration with defaults" \
+		"  --sessions       List and attach to existing tmux sessions" \
 		"" \
 		"Examples:" \
-		"  muxxer            List and attach to existing sessions" \
-		"  muxxer myproject  Attach to or create session" \
+		"  muxxer            Browse and attach to existing projects" \
+		"  muxxer --sessions List and attach to tmux sessions" \
+		"  muxxer myproject  Attach to or create session (filtered)" \
 		"  muxxer --help     Show help" \
 		"  muxxer --version  Show version" \
 		"  muxxer --init     Initialize configuration" \
@@ -103,6 +131,10 @@ main() {
 		log::success "Configuration reset to defaults"
 		return 0
 		;;
+	--sessions)
+		handle_session_list_mode
+		return $?
+		;;
 	esac
 
 	# Setup signal handlers
@@ -112,8 +144,8 @@ main() {
 	config::init "false"
 
 	if [[ $# -eq 0 ]]; then
-		handle_session_list_mode
-		return 0
+		handle_all_projects_flow
+		return $?
 	fi
 
 	session_name="$1"

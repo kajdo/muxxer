@@ -16,15 +16,17 @@ tmux resize-pane -y 5 -t "$LEFT_BOTTOM_PANE"
 # --- ADD YOUR COMMANDS HERE ---
 
 # Left top pane: main development pane
-# Example: clear the terminal
-tmux send-keys -t "$LEFT_TOP_PANE" "clear" C-m
+tmux send-keys -t "$LEFT_TOP_PANE" "nix-shell" C-m
+# sleep 10
+tmux send-keys -t "$LEFT_TOP_PANE" "clear && glow README.md" C-m
 
 # Right pane: documentation, logs, or auxiliary tools
-# Example: display README.md with glow (if installed)
-tmux send-keys -t "$RIGHT_PANE" "clear && glow README.md" C-m
+tmux send-keys -t "$RIGHT_PANE" "nix-shell" C-m
+# sleep 10
+tmux send-keys -t "$RIGHT_PANE" "opencode --continue" C-m
 
 # Left bottom pane: local shell for quick commands
 # Example: identify the pane purpose
-tmux send-keys -t "$LEFT_BOTTOM_PANE" "echo \"this is the local shell\"" C-m
+tmux send-keys -t "$LEFT_BOTTOM_PANE" "clear" C-m
 
 tmux select-pane -t "$LEFT_TOP_PANE"

@@ -76,6 +76,39 @@ fzf::select_directory() {
 	printf '%s\n' "$selected"
 }
 
+fzf::select_all_directories() {
+	local git_dir="${MUXXER_GIT_DIR:-$HOME/git}"
+	local selected=""
+	local dir=""
+	local -a entries=()
+
+	if [[ ! -d "$git_dir" ]]; then
+		printf '%s' ""
+		return 0
+	fi
+
+	for dir in "$git_dir"/*; do
+		if [[ -d "$dir" ]]; then
+			entries+=("$dir")
+		fi
+	done
+
+	if [[ ${#entries[@]} -eq 0 ]]; then
+		printf '%s' ""
+		return 0
+	fi
+
+	export -f fzf::preview_directory
+	selected="$(printf '%s\n' "${entries[@]}" | fzf::pick "bash -c 'fzf::preview_directory \"\$1\"' _ {}")"
+
+	if [[ -z "$selected" ]]; then
+		printf '%s' ""
+		return 0
+	fi
+
+	printf '%s\n' "$selected"
+}
+
 fzf::select_session() {
 	local selected=""
 	local line=""

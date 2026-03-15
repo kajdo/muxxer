@@ -2,20 +2,36 @@
 
 ## Basic Commands
 
-### List and Attach to Sessions
+### Browse and Attach to Existing Projects
 
 ```bash
 muxxer
 ```
 
-Shows an interactive list of all tmux sessions. Select one to attach, or press Escape to cancel.
+Shows an interactive list of all projects in your git directory (`~/git/` by default). Select one to attach or create a session, or press Escape to cancel.
+
+The list displays:
+- Project directory
+- Preview of README.md or directory listing
+
+If a tmux session for the selected project already exists, muxxer attaches to it. Otherwise, it creates a new session with the detected project type.
+
+**Note**: This is the recommended way to quickly open any existing project. Perfect for key bindings!
+
+### List and Attach to tmux Sessions
+
+```bash
+muxxer --sessions
+```
+
+Shows an interactive list of all active tmux sessions. Select one to attach, or press Escape to cancel.
 
 The list displays:
 - Session name
 - Number of windows
 - Preview of windows in the session
 
-### Attach to Existing Session
+### Attach to Existing Session by Name
 
 ```bash
 muxxer myproject
@@ -23,7 +39,7 @@ muxxer myproject
 
 If a session named `myproject` exists, muxxer attaches to it immediately. All panes and running processes are preserved.
 
-### Create Session for Local Repository
+### Create Session for Local Repository (Filtered)
 
 ```bash
 muxxer myproject
@@ -198,8 +214,9 @@ This provides immediate access to your development environment.
 ## Command Line Options
 
 ```bash
-muxxer                  # List sessions
-muxxer <name>           # Attach or create session
+muxxer                  # Browse and attach to existing projects
+muxxer --sessions       # List and attach to tmux sessions
+muxxer <name>           # Attach or create session (filtered by name)
 muxxer --help           # Show help
 muxxer --version        # Show version
 muxxer --init           # Initialize configuration (only if not exists)
