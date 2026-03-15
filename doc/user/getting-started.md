@@ -28,6 +28,13 @@ When you run muxxer for the first time:
 3. Copies default configuration and templates
 4. Creates a symlink at `~/.local/bin/muxxer`
 
+You can also manually initialize or reset configuration using:
+
+```bash
+muxxer --init          # Initialize config (only if not exists)
+muxxer --force-init    # Reset config to defaults (overwrites existing)
+```
+
 ### What Gets Created
 
 ```

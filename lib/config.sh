@@ -8,9 +8,17 @@ DEFAULTS_DIR="${DEFAULTS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/d
 export MUXXER_CONFIG_DIR MUXXER_CONFIG
 
 config::copy_defaults() {
+	local force="${1:-false}"
+
 	mkdir -p "$MUXXER_CONFIG_DIR"
 	cp "$DEFAULTS_DIR/config" "$MUXXER_CONFIG"
 	cp "$DEFAULTS_DIR/tmux-script.sh" "$MUXXER_CONFIG_DIR/tmux-script.sh"
+
+	# Force mode: remove existing templates directory first
+	if [[ "$force" == "true" ]] && [[ -d "$MUXXER_CONFIG_DIR/shell-templates" ]]; then
+		rm -rf "$MUXXER_CONFIG_DIR/shell-templates"
+	fi
+
 	mkdir -p "$MUXXER_CONFIG_DIR/shell-templates"
 	cp -R "$DEFAULTS_DIR/templates/." "$MUXXER_CONFIG_DIR/shell-templates/"
 }
@@ -112,8 +120,10 @@ config::setup_symlink() {
 }
 
 config::init() {
-	if [[ ! -f "$MUXXER_CONFIG" ]]; then
-		config::copy_defaults
+	local force="${1:-false}"
+
+	if [[ "$force" == "true" ]] || [[ ! -f "$MUXXER_CONFIG" ]]; then
+		config::copy_defaults "$force"
 	fi
 
 	# shellcheck disable=SC1090

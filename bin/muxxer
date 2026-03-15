@@ -58,14 +58,18 @@ show_help() {
 		"Simple (opinionated) tmux session manager." \
 		"" \
 		"Flags:" \
-		"  -h, --help      Show this help message" \
-		"  -v, --version   Show muxxer version" \
+		"  -h, --help       Show this help message" \
+		"  -v, --version    Show muxxer version" \
+		"  --init           Initialize configuration (only if not exists)" \
+		"  --force-init     Force overwrite configuration with defaults" \
 		"" \
 		"Examples:" \
 		"  muxxer            List and attach to existing sessions" \
 		"  muxxer myproject  Attach to or create session" \
 		"  muxxer --help     Show help" \
-		"  muxxer --version  Show version"
+		"  muxxer --version  Show version" \
+		"  muxxer --init     Initialize configuration" \
+		"  muxxer --force-init  Reset configuration to defaults"
 }
 
 show_version() {
@@ -77,6 +81,7 @@ main() {
 
 	local session_name=""
 	local first_arg="${1:-}"
+	local force_init="false"
 
 	case "$first_arg" in
 	-h|--help)
@@ -87,13 +92,24 @@ main() {
 		show_version
 		return 0
 		;;
+	--init)
+		config::init
+		log::success "Configuration initialized"
+		return 0
+		;;
+	--force-init)
+		force_init="true"
+		config::init "$force_init"
+		log::success "Configuration reset to defaults"
+		return 0
+		;;
 	esac
 
 	# Setup signal handlers
 	error::setup_trap
 
 	# Initialize config (copies defaults on first run)
-	config::init
+	config::init "false"
 
 	if [[ $# -eq 0 ]]; then
 		handle_session_list_mode

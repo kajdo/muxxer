@@ -36,13 +36,18 @@ workflow::newrepo::run() {
 	repo_path="$MUXXER_GIT_DIR/$repo_name"
 
 	if [[ "${MUXXER_CREATE_SHELL_NIX:-true}" == "true" ]]; then
-		if ! templates::copy "$template_name" "$repo_path"; then
-			log::error "Failed to copy shell.nix template: $template_name"
-			return 1
-		fi
+		# Skip if shell.nix already exists (preserve user's work)
+		if [[ -f "$repo_path/shell.nix" ]]; then
+			log::info "Using existing shell.nix in $repo_path"
+		else
+			if ! templates::copy "$template_name" "$repo_path"; then
+				log::error "Failed to copy shell.nix template: $template_name"
+				return 1
+			fi
 
-		log::success "Created shell.nix from '$template_name' template"
-		shell_nix_created=1
+			log::success "Created shell.nix from '$template_name' template"
+			shell_nix_created=1
+		fi
 	fi
 
 	if [[ "${MUXXER_CREATE_README:-true}" == "true" ]]; then

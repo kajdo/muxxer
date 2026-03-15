@@ -202,4 +202,11 @@ muxxer                  # List sessions
 muxxer <name>           # Attach or create session
 muxxer --help           # Show help
 muxxer --version        # Show version
+muxxer --init           # Initialize configuration (only if not exists)
+muxxer --force-init     # Reset configuration to defaults (overwrites existing)
 ```
+
+### Configuration Management
+
+- `--init` creates the initial configuration if it doesn't exist
+- `--force-init` overwrites your existing configuration with defaults (use with caution)

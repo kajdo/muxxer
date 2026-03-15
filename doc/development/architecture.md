@@ -41,7 +41,7 @@ muxxer/
 
 Entry point (122 lines). Responsibilities:
 
-- Argument parsing (`--help`, `--version`, session name)
+- Argument parsing (`--help`, `--version`, `--init`, `--force-init`, session name)
 - Signal trap setup
 - Configuration initialization
 - Session existence check
@@ -98,10 +98,10 @@ Template operations (44 lines):
 
 ### lib/workflows/local.sh
 
-Local repository workflow (130 lines):
+Local repository workflow (66 lines):
 
 - `workflow::local::setup_project_layout()` - create .muxxer directory
-- `workflow::local::create_session()` - create tmux session with project detection
+- `workflow::local::create_session()` - create tmux session
 - `workflow::local::run()` - orchestrate local workflow
 
 ### lib/workflows/newrepo.sh
@@ -150,14 +150,10 @@ Input validation (45 lines):
 
 ### lib/utils/project-detection.sh
 
-Project type detection (141 lines):
+Directory validation helpers (17 lines):
 
 - `project::is_valid_directory()` - validate directory
 - `project::has_nix_shell()` - check for shell.nix/flake.nix
-- `project::detect_type()` - detect project type from files
-- `project::get_main_command()` - get suggested main command
-- `project::get_test_command()` - get suggested test command
-- `project::get_install_command()` - get suggested install command
 
 ## Design Patterns
 
@@ -250,7 +246,9 @@ selection == "NEW REPO"?
     |              |
     |              v
     |           workflow::newrepo::create_directory()
-    |           templates::copy()
+    |           shell.nix exists?
+    |           |-- yes --> skip shell.nix creation
+    |           |-- no --> templates::copy()
     |           templates::generate_readme()
     |           gh repo create (optional)
     |           workflow::local::run()
@@ -259,6 +257,13 @@ selection == "NEW REPO"?
                    |
                    v
                 workflow::local::setup_project_layout()
+                   |
+                   v
+                .muxxer exists?
+                |-- yes --> skip layout setup (preserve user config)
+                |-- no --> create .muxxer/ with tmux-script.sh
+                |
+                v
                 workflow::local::create_session()
                 tmux::attach()
 ```
@@ -266,11 +271,15 @@ selection == "NEW REPO"?
 ### Configuration Flow
 
 ```
-config::init()
+config::init(force)
     |
     v
-config exists?
-    |-- no --> config::copy_defaults()
+force mode or config doesn't exist?
+    |-- yes --> config::copy_defaults(force)
+    |              |
+    |              v
+    |           force mode?
+    |           |-- yes --> remove existing shell-templates/
     |
     v
 source config
@@ -291,9 +300,6 @@ config::validate()
 | `MUXXER_CONFIG` | Path to config file |
 | `MUXXER_CONFIG_DIR` | Directory containing config and templates |
 | `MUXXER_GIT_DIR` | Directory containing git repositories |
-| `MUXXER_PROJECT_TYPE` | Detected project type (passed to tmux-script) |
-| `MUXXER_MAIN_COMMAND` | Suggested main command (passed to tmux-script) |
-| `MUXXER_TEST_COMMAND` | Suggested test command (passed to tmux-script) |
 
 ### XDG
 

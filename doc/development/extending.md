@@ -34,48 +34,6 @@ To include a template in the muxxer distribution:
 2. Update `defaults/config` if needed
 3. Document in `doc/user/templates.md`
 
-## Adding Project Type Detection
-
-Edit `lib/utils/project-detection.sh`:
-
-```bash
-project::detect_type() {
-    local directory="$1"
-
-    # Add new detection
-    if [[ -f "$directory/Makefile" ]]; then
-        echo "make"
-        return 0
-    fi
-
-    # ... existing detection ...
-}
-```
-
-Then add command mappings:
-
-```bash
-project::get_main_command() {
-    # ...
-    case "$project_type" in
-        make)
-            echo "make run"
-            ;;
-        # ...
-    esac
-}
-
-project::get_test_command() {
-    # ...
-    case "$project_type" in
-        make)
-            echo "make test"
-            ;;
-        # ...
-    esac
-}
-```
-
 ## Adding a New Workflow
 
 ### 1. Create Workflow Module

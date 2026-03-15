@@ -40,6 +40,36 @@ MUXXER_GITHUB_DEFAULT_VISIBILITY="private"
 | `MUXXER_CREATE_GITHUB_REPO` | `true` | Default answer for "Create GitHub repo?" |
 | `MUXXER_GITHUB_DEFAULT_VISIBILITY` | `private` | Default visibility (`public` or `private`) |
 
+### Config Management
+
+Muxxer provides commands to manage your configuration:
+
+#### Initialization
+
+On first run, muxxer automatically creates the configuration directory and copies defaults to `~/.config/muxxer/`.
+
+#### Manual Initialization
+
+```bash
+muxxer --init
+```
+
+Creates the configuration directory and copies defaults, but only if they don't already exist. Safe to run multiple times.
+
+#### Reset to Defaults
+
+```bash
+muxxer --force-init
+```
+
+Overwrites your existing configuration with default values. Use with caution - this will:
+
+- Replace `~/.config/muxxer/config` with defaults
+- Replace `~/.config/muxxer/tmux-script.sh` with defaults
+- Replace `~/.config/muxxer/shell-templates/` with default templates
+
+Project-specific files (`.muxxer/` directories in your projects) are **not** affected.
+
 ### Example: Custom Git Directory
 
 ```bash
@@ -65,6 +95,8 @@ Each project can have its own session layout via `.muxxer/tmux-script.sh`.
 
 The `.muxxer/` directory is created when you first open a project with muxxer. The global `tmux-script.sh` is copied to `.muxxer/tmux-script.sh`.
 
+**Important**: If `.muxxer/` already exists in the project directory, muxxer will NOT overwrite it. This preserves your customizations and project-specific configuration.
+
 ### Customizing Layout
 
 Edit `.muxxer/tmux-script.sh` in your project:
@@ -89,26 +121,6 @@ tmux send-keys -t 3 "git status" C-m
 tmux select-pane -t 0
 ```
 
-### Environment Variables Available
-
-The script receives these environment variables:
-
-| Variable | Description |
-|----------|-------------|
-| `MUXXER_PROJECT_TYPE` | Detected type (node, python, rust, go, flutter, nix, unknown) |
-| `MUXXER_MAIN_COMMAND` | Suggested main command for the project |
-| `MUXXER_TEST_COMMAND` | Suggested test command for the project |
-
-Example usage in custom script:
-
-```bash
-#!/usr/bin/env bash
-
-if [[ "$MUXXER_PROJECT_TYPE" == "node" ]]; then
-    tmux send-keys "npm run dev" C-m
-fi
-```
-
 ## Default Session Script
 
 The default `tmux-script.sh` behavior:
@@ -117,9 +129,7 @@ The default `tmux-script.sh` behavior:
 2. In right pane: run `nix-shell` if `shell.nix` exists
 3. Split left pane horizontally (creates bottom pane)
 4. Resize bottom pane to 5 lines
-5. Run `MUXXER_MAIN_COMMAND` in top-left if set
-6. Run `MUXXER_TEST_COMMAND` in bottom-left if set
-7. Focus top-left pane
+5. Focus top-left pane
 
 ## Validation
 
