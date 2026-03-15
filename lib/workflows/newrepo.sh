@@ -102,12 +102,12 @@ workflow::newrepo::run() {
 			github_visibility="private"
 		fi
 
-		if ! gh repo create "$github_repo_full_name" --"$github_visibility" --source "$repo_path" --remote origin; then
+		if ! gh repo create "$github_repo_full_name" --"$github_visibility" --source "$repo_path" --remote origin --push; then
 			log::error "Failed to create GitHub repository: $github_repo_full_name"
 			return 1
 		fi
 
-		log::success "Created GitHub repository: $github_repo_full_name"
+		log::success "Created and pushed to GitHub repository: $github_repo_full_name"
 	fi
 
 	workflow::local::run "$session_name" "$repo_path"
