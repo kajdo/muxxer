@@ -13,10 +13,10 @@ Muxxer is a simple, opinionated tmux session manager designed for developers who
 ## Quick Start
 
 ```bash
-# List all sessions (attach on select)
+# Browse and attach to existing projects
 muxxer
 
-# Attach to or create a session
+# Attach to or create a session (filtered by name)
 muxxer myproject
 ```
 

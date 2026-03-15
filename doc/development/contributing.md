@@ -48,8 +48,11 @@ muxxer/
 No automated test suite currently. Manual testing:
 
 ```bash
-# Test session list
+# Test project list
 ./bin/muxxer
+
+# Test session list
+./bin/muxxer --sessions
 
 # Test session creation
 ./bin/muxxer test-project

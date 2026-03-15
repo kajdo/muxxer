@@ -63,7 +63,7 @@ main()
   -> config::setup_symlink()
   -> error::setup_trap()
   -> config::init()
-  -> if no args: handle_session_list_mode()
+  -> if no args: handle_all_projects_flow()
   -> if session exists: tmux::attach()
   -> else: handle_new_session_flow()
 ```
