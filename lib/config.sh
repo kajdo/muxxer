@@ -86,6 +86,31 @@ config::validate() {
 	return 0
 }
 
+config::setup_symlink() {
+	local target_dir="$HOME/.local/bin"
+	local symlink="$target_dir/muxxer"
+	local script_path="$SCRIPT_DIR/bin/muxxer"
+
+	if [[ ! -d "$target_dir" ]]; then
+		mkdir -p "$target_dir"
+		log::info "Created $target_dir"
+	fi
+
+	if [[ -L "$symlink" ]]; then
+		local current_target
+		current_target="$(readlink -f "$symlink" 2>/dev/null || readlink "$symlink")"
+		if [[ "$current_target" != "$script_path" ]]; then
+			ln -sf "$script_path" "$symlink"
+			log::info "Updated symlink: $symlink -> $script_path"
+		fi
+	elif [[ -e "$symlink" ]]; then
+		log::warning "$symlink exists but is not a symlink, skipping"
+	else
+		ln -s "$script_path" "$symlink"
+		log::info "Created symlink: $symlink -> $script_path"
+	fi
+}
+
 config::init() {
 	if [[ ! -f "$MUXXER_CONFIG" ]]; then
 		config::copy_defaults
