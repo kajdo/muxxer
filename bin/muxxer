@@ -42,17 +42,14 @@ handle_all_projects_flow() {
 		exit 0
 	fi
 
-	# Use directory basename as session name
-	session_name="$(basename "$selected_directory")"
+	session_name="$(tmux::sanitize_session_name "$(basename "$selected_directory")")"
 
-	# Check if session already exists
 	if tmux::session_exists "$session_name"; then
 		log::info "Attaching to existing session '$session_name'"
 		tmux::attach "$session_name"
 		return $?
 	fi
 
-	# Create new session for existing project
 	log::info "Creating session '$session_name' for existing project"
 	workflow::local::run "$session_name" "$selected_directory"
 }
@@ -150,19 +147,18 @@ main() {
 
 	session_name="$1"
 
-	# Validate session name
 	if ! validation::session_name_valid "$session_name"; then
-		error::handle "Invalid session name '$session_name' (allowed: letters, numbers, underscore, dash)"
+		error::handle "Invalid session name '$session_name' (allowed: letters, numbers, underscore, dash, dot, colon)"
 	fi
 
-	# Check if session already exists
+	session_name="$(tmux::sanitize_session_name "$session_name")"
+
 	if tmux::session_exists "$session_name"; then
 		log::info "Session '$session_name' found, attaching..."
 		tmux::attach "$session_name"
 		return 0
 	fi
 
-	# Session doesn't exist - start new session flow
 	log::info "Session '$session_name' not found, creating new..."
 	handle_new_session_flow "$session_name"
 }

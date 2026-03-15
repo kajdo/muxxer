@@ -1,5 +1,13 @@
 # Tmux session operations module for creating, querying, and controlling sessions.
 
+# Sanitize session name for tmux compatibility
+# Tmux converts dots to underscores in session names and interprets dots as separators
+# This function replaces dots and other problematic characters with underscores
+tmux::sanitize_session_name() {
+	local session_name="${1:-}"
+	echo "${session_name//[:.]/_}"
+}
+
 tmux::session_exists() {
 	local session_name="${1:-}"
 

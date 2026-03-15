@@ -26,6 +26,8 @@ workflow::newrepo::run() {
 		session_name="$repo_name"
 	fi
 
+	session_name="$(tmux::sanitize_session_name "$session_name")"
+
 	template_name="$(fzf::select_language)"
 	if [[ -z "$template_name" && "${MUXXER_CREATE_SHELL_NIX:-true}" == "true" ]]; then
 		log::error "No shell template selected"
@@ -183,6 +185,7 @@ workflow::newrepo::clone_repo() {
 		session_name="$repo_name"
 	fi
 
+	session_name="$(tmux::sanitize_session_name "$session_name")"
 	workflow::local::run "$session_name" "$repo_path"
 }
 

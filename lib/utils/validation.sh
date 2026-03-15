@@ -41,5 +41,5 @@ validation::require_command() {
 
 validation::session_name_valid() {
 	local session_name="$1"
-	[[ "$session_name" =~ ^[[:alnum:]_-]+$ ]]
+	[[ "$session_name" =~ ^[[:alnum:]_\.:.-]+$ ]]
 }
