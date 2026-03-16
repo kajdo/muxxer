@@ -71,6 +71,8 @@ handle_new_session_flow() {
 		return $?
 	fi
 
+	# Sanitize session name from selected directory (not input arg)
+	session_name="$(tmux::sanitize_session_name "$(basename "$selected_directory")")"
 	workflow::local::run "$session_name" "$selected_directory"
 }
 
